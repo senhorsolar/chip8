@@ -157,13 +157,13 @@ fn main() {
 
     let args: Vec<String> = env::args().collect();
     let rom_filename = &args[1];
-
     let rom_bytes = fs::read(rom_filename).expect("Rom file does not exist");
     
     let mut c = Chip8::new();
     c.load_rom(&rom_bytes);
 
     initscr();
+    setlocale(constants::LcCategory::all, "");
     cbreak();
     noecho();
 
