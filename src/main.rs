@@ -1,4 +1,14 @@
+extern crate ncurses;
+
+use ncurses::*;
+
 use std::cmp::min;
+use std::thread;
+use std::time;
+
+use std::fs;
+use std::env;
+
 
 const FONT: [u8; 5*16] = [
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -83,12 +93,12 @@ impl Chip8 {
         let nnn = (opcode & 0x0FFF) as usize;
 
         match nibbles {
-            (0x0, 0x0, 0xE, 0x0) => self.op_00e0(),
-            (0x1, _, _, _) => self.op_1nnn(nnn),
-            (0x6, _, _, _) => self.op_6xnn(x, nn),
-            (0x7, _, _, _) => self.op_7xnn(x, nn),
-            (0xA, _, _, _) => self.op_annn(nnn),
-            (0xD, _, _, _) => self.op_dxyn(x, y, n),
+            (0x00, 0x00, 0x0E, 0x00) => self.op_00e0(),
+            (0x01, _, _, _) => self.op_1nnn(nnn),
+            (0x06, _, _, _) => self.op_6xnn(x, nn),
+            (0x07, _, _, _) => self.op_7xnn(x, nn),
+            (0x0A, _, _, _) => self.op_annn(nnn),
+            (0x0D, _, _, _) => self.op_dxyn(x, y, n),
             _ => (),
         }
     }
@@ -110,7 +120,8 @@ impl Chip8 {
     }
 
     fn op_7xnn(&mut self, x: usize, nn: u8) {
-        self.v[x] += nn;
+	let result = ((self.v[x] as u16) + (nn as u16)) as u8;
+        self.v[x] = result;;
     }
 
     fn op_annn(&mut self, nnn: usize) {
@@ -141,5 +152,53 @@ impl Chip8 {
 }  
 
 fn main() {
-    println!("Hello, world!");
+
+    let sleep_duration = time::Duration::from_millis(5000);
+
+    let args: Vec<String> = env::args().collect();
+    let rom_filename = &args[1];
+
+    let rom_bytes = fs::read(rom_filename).expect("Rom file does not exist");
+    
+    let mut c = Chip8::new();
+    c.load_rom(&rom_bytes);
+
+    initscr();
+    cbreak();
+    noecho();
+
+    resize_term(32+4, 64+4);
+    refresh();
+    
+    let window = newwin(32 + 2, 64 + 2, 2, 2);
+    
+
+    nodelay(stdscr(), true);
+    keypad(stdscr(), true);
+    box_(window, 0, 0);
+    //waddstr(window, "Hello Rust");
+    wrefresh(window);
+    
+    //println!("Running");
+    for i in 0..1000 {
+	let opcode = c.fetch();
+	c.process(opcode);
+	
+	for x in 0..64 {
+	    for y in 0..32 {
+		let ch = match c.display[y][x] {
+		    0 => ' ' as u32,
+		    _ => ACS_BLOCK()
+		};
+		mvwaddch(window, (y + 1) as i32, (x + 1) as i32, ch);
+	    }
+	}
+	box_(window, 0, 0);
+	wrefresh(window);
+    }
+
+    thread::sleep(sleep_duration);
+    
+    delwin(window);
+    endwin();
 }
