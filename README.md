@@ -7,6 +7,6 @@ cargo run <rom>
 ```
 
 The following sources were used:
-* https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#execute
+* https://tobiasvl.github.io/blog/write-a-chip-8-emulator
 * https://github.com/DubiousCactus/Cheap8
 * https://github.com/starrhorne/chip8-rust
