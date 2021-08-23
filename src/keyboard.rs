@@ -62,12 +62,16 @@ impl Keyboard {
 	self.listener = Some(thread::spawn(move || {
 	    
 	    let mut since_key_pressed = [time::Instant::now(); 16];
+
+	    fn depressed(key_time: time::Instant) -> bool {
+		return key_time.elapsed().as_millis() > KEY_TIME_MS;
+	    }
 	    
 	    while *running.lock().unwrap() {
 
 		// Reset keys if unpressed for some time
 		for i in 0..NKEYS {
-		    if keys.lock().unwrap()[i] && since_key_pressed[i].elapsed().as_millis() > KEY_TIME_MS {
+		    if keys.lock().unwrap()[i] && depressed(since_key_pressed[i]) {
 			keys.lock().unwrap()[i] = false;
 		    }
 		}
@@ -75,7 +79,6 @@ impl Keyboard {
 		// Check for pressed keys
 		while let (Some(c), true) = (char::from_u32(getch() as u32),
 					     *running.lock().unwrap()) {
-
 		    match c {
 			'q' => {
 			    *exit.lock().unwrap() = true;
@@ -92,8 +95,7 @@ impl Keyboard {
 			}
 		    }
 		}
-	    }
-	    
+	    }   
 	}));
     }
 
