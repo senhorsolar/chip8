@@ -325,7 +325,6 @@ impl Chip8 {
 	
 	self.ram[self.i + 2] = num;
     }
-
     
     fn op_fx55(&mut self, x: usize) {
 	for reg_idx in 0..=x {
