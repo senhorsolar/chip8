@@ -13,13 +13,13 @@ pub const KEYS: &str = "0123456789abcdef";
 pub struct Chip8 {
     ram: [u8; RAMBYTES],
     vram: [[bool; CHIP_WIDTH]; CHIP_HEIGHT],
-    keyboard: [bool; 16],
+    keyboard: [bool; NKEYS],
     pc: usize,
     i: usize,
     stack: Vec<usize>,
     delay_timer: u8,
     sound_timer: u8,
-    v: [u8; 16],
+    v: [u8; NKEYS],
 }
 
 impl Chip8 {
@@ -48,7 +48,7 @@ impl Chip8 {
     pub fn load_rom(&mut self, bytes: &[u8]) {
         for (i, &byte) in bytes.iter().enumerate() {
             let addr = 0x200 + i;
-            if addr >= 4096 {
+            if addr >= RAMBYTES {
                 break;
             }   
             self.ram[addr] = byte;

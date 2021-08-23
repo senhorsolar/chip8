@@ -32,10 +32,12 @@ impl Keyboard {
     }
 
     pub fn is_pressed(&self, idx: usize) -> bool {
-	return match idx {
-	    0..=15 => self.keys.lock().unwrap()[idx],
-	    _ => false
-	};
+	if idx < NKEYS {
+	    return self.keys.lock().unwrap()[idx];
+	}
+	else {
+	    return false;
+	}
     }
 
     pub fn get_pressed(&self) -> [bool; NKEYS] {
