@@ -1,6 +1,6 @@
 # Chip8 Emulator
 
-Chip-8 emulator in Rust. This was my foray into both Rust and emulators. The emulator runs in the terminal, and can be run as
+Chip-8 emulator in Rust. This was my foray into both Rust and emulators. The emulator runs in the terminal via ncurses, and can be run as
 
 ``` shell
 cargo run <rom>
